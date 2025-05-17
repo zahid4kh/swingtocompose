@@ -66,7 +66,7 @@ Version: $PACKAGE_VERSION
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments
+Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments, python3-google-genai
 Maintainer: Zahid Khalilov <halilzahid@gmail.com>
 Description: Swing to Compose Converter
  A robust tool for converting code written with Java Swing into Compose Desktop.
