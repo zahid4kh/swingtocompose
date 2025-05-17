@@ -28,7 +28,8 @@ class FadingTextEdit(QTextEdit):
         cursor.movePosition(QTextCursor.MoveOperation.End)
 
         initial_format = QTextCharFormat()
-        initial_format.setForeground(QColor(0, 0, 0, 0))  # Fully transparent
+        initial_format.setForeground(
+            QColor(255, 255, 255, 0))
         cursor.insertText(chunk, initial_format)
 
         # animation
@@ -44,13 +45,13 @@ class FadingTextEdit(QTextEdit):
         # sequence
         for alpha in range(0, 256, 15):
             format = QTextCharFormat()
-            format.setForeground(QColor(0, 0, 0, alpha))
+            format.setForeground(QColor(255, 255, 255, alpha))
             cursor.setCharFormat(format)
             QApplication.processEvents()
             time.sleep(0.01)
 
         format = QTextCharFormat()
-        format.setForeground(QColor(0, 0, 0, 255))
+        format.setForeground(QColor(255, 255, 255, 255))
         cursor.setCharFormat(format)
 
         QApplication.processEvents()
