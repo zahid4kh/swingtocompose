@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QLabel, QPushButton, QTextEdit,
                              QSplitter, QFileDialog, QMessageBox, QProgressBar,
                              QSizePolicy)
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QColor, QPixmap, QPainter
 from streamworker import StreamWorker
 from key import GEMINI_API_KEY
@@ -50,6 +50,7 @@ class MainWindow(QMainWindow):
         input_header_layout.addWidget(input_label)
         input_header_layout.addStretch()
         input_header_layout.addWidget(input_clear_button)
+        input_header_layout.addSpacing(10)
         input_layout.addLayout(input_header_layout)
 
         self.swing_editor = QTextEdit()
@@ -68,6 +69,7 @@ class MainWindow(QMainWindow):
         output_layout.setContentsMargins(0, 0, 0, 0)
 
         output_header_layout = QHBoxLayout()
+        output_header_layout.addSpacing(10)
         output_label = QLabel("Jetpack Compose Code")
         output_clear_button = QPushButton("Clear")
         # output_clear_button.setFixedWidth(clear_button_width)
@@ -125,6 +127,10 @@ class MainWindow(QMainWindow):
                 font-weight: bold;
             }
 
+            QPushButton QIcon {
+                padding: 8px 8px 8px 8px;
+            }
+
             QPushButton:hover {
                 background-color: rgba(255, 255, 255, 0.1);
                 border: 1px solid #888888;
@@ -135,6 +141,13 @@ class MainWindow(QMainWindow):
                 border: 1px solid #AAAAAA;
             }
         """
+
+        icon_size = 18
+        self.load_button.setIconSize(QSize(icon_size, icon_size))
+        self.convert_button.setIconSize(QSize(icon_size, icon_size))
+        self.save_button.setIconSize(QSize(icon_size, icon_size))
+        self.load_sample_button.setIconSize(QSize(icon_size, icon_size))
+
         self.load_button.setStyleSheet(outlined_style)
         self.convert_button.setStyleSheet(outlined_style)
         self.save_button.setStyleSheet(outlined_style)
