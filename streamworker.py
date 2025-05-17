@@ -41,10 +41,11 @@ class StreamWorker(QThread):
             Your conversion should:
             1. Preserve all functionality of the original Swing application
             2. Use modern Compose for Desktop practices and patterns
-            3. Handle layouts appropriately (converting layout managers to Compose layout concepts)
-            4. Convert action listeners to Compose event handling
-            5. Use Compose state management instead of imperative variable changes
-            6. Add necessary imports
+            3. Use Material3 components
+            4. Handle layouts appropriately (converting layout managers to Compose layout concepts)
+            5. Convert action listeners to Compose event handling
+            6. Use Compose state management instead of imperative variable changes
+            7. Add necessary imports
             
             Respond ONLY with the complete Kotlin code that uses Compose for Desktop, with no additional explanation or comments outside the code.
             """
