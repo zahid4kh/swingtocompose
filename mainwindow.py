@@ -425,20 +425,32 @@ class MainWindow(QMainWindow):
                     self, "Error", f"Could not open file: {str(e)}")
 
     def save_file(self):
-        file_name, _ = QFileDialog.getSaveFileName(
+        file_name, selected_filter = QFileDialog.getSaveFileName(
             self,
-            "Save Compose File",
+            "Save Kotlin File",
             "",
             "Kotlin Files (*.kt);;All Files (*)"
         )
 
         if file_name:
+            if selected_filter == "Kotlin Files (*.kt)" and not file_name.lower().endswith('.kt'):
+                file_name += '.kt'
+
             try:
                 with open(file_name, 'w') as file:
                     file.write(self.compose_output.toPlainText())
+
+                QMessageBox.information(
+                    self,
+                    "Success",
+                    f"File saved successfully as:\n{file_name}"
+                )
             except Exception as e:
                 QMessageBox.critical(
-                    self, "Error", f"Could not save file: {str(e)}")
+                    self,
+                    "Error",
+                    f"Could not save file: {str(e)}"
+                )
 
     def load_sample(self):
         sample_code = sampleswing.sample_code
