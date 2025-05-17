@@ -1,7 +1,8 @@
 import time
 from PyQt6.QtCore import pyqtSignal, QThread
 from google import genai
-from key import GEMINI_API_KEY
+import importlib
+import key
 from prompts import SWING_TO_COMPOSE_PROMPT
 import samplecompose
 
@@ -17,11 +18,15 @@ class StreamWorker(QThread):
 
     def run(self):
         try:
-            if not GEMINI_API_KEY:
+            importlib.reload(key)
+
+            api_key = key.GEMINI_API_KEY
+
+            if not api_key:
                 self._simulate_response()
                 return
 
-            client = genai.Client(api_key=GEMINI_API_KEY)
+            client = genai.Client(api_key=api_key)
 
             prompt = SWING_TO_COMPOSE_PROMPT.format(swing_code=self.swing_code)
 
@@ -46,7 +51,6 @@ class StreamWorker(QThread):
             self.error.emit(str(e))
 
     def _simulate_response(self):
-
         sample_code = samplecompose.sample_code
         # only simulating streaming here
         chunks = [sample_code[i:i+20] for i in range(0, len(sample_code), 20)]
