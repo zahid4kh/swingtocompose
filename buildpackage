@@ -174,8 +174,8 @@ Exec=/usr/bin/swingtocompose
 Icon=swingtocompose
 Terminal=false
 Type=Application
-Categories=Utility;Security;
-StartupWMClass=swingtocompose
+Categories=Development;IDE;
+StartupWMClass=SwingToCompose
 EOF
 
 # Copying Python files
