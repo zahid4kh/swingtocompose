@@ -3,8 +3,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QSplitter, QFileDialog, QMessageBox, QProgressBar,
                              QSizePolicy)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QColor, QPalette
-from fadingtext import FadingTextEdit
+from PyQt6.QtGui import QIcon
 from streamworker import StreamWorker
 from key import GEMINI_API_KEY
 from coolstyle import CoolStyle
@@ -24,6 +23,7 @@ class MainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        clear_button_width = 80
         central_widget = QWidget()
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(16, 16, 16, 16)
@@ -43,12 +43,17 @@ class MainWindow(QMainWindow):
         input_layout = QVBoxLayout(input_widget)
         input_layout.setContentsMargins(0, 0, 0, 0)
 
+        input_header_layout = QHBoxLayout()
         input_label = QLabel("Java Swing Code")
-        input_layout.addWidget(input_label)
+        input_clear_button = QPushButton("Clear")
+        # input_clear_button.setFixedWidth(clear_button_width)
+        input_header_layout.addWidget(input_label)
+        input_header_layout.addStretch()
+        input_header_layout.addWidget(input_clear_button)
+        input_layout.addLayout(input_header_layout)
 
         self.swing_editor = QTextEdit()
         self.swing_editor.setFont(CoolStyle.get_code_font())
-        # self.swing_editor.setFixedSize(600, 1000)
         self.swing_editor.setPlaceholderText(
             "Paste your Java Swing code here...")
         self.swing_editor.setSizePolicy(
@@ -62,8 +67,14 @@ class MainWindow(QMainWindow):
         output_layout = QVBoxLayout(output_widget)
         output_layout.setContentsMargins(0, 0, 0, 0)
 
+        output_header_layout = QHBoxLayout()
         output_label = QLabel("Jetpack Compose Code")
-        output_layout.addWidget(output_label)
+        output_clear_button = QPushButton("Clear")
+        # output_clear_button.setFixedWidth(clear_button_width)
+        output_header_layout.addWidget(output_label)
+        output_header_layout.addStretch()
+        output_header_layout.addWidget(output_clear_button)
+        output_layout.addLayout(output_header_layout)
 
         self.compose_output = PygmentsFadingEdit(lexer=KotlinLexer())
         self.compose_output.setFont(CoolStyle.get_code_font())
@@ -92,10 +103,43 @@ class MainWindow(QMainWindow):
 
         button_layout = QHBoxLayout()
 
-        self.load_button = QPushButton("Load From File")
-        self.convert_button = QPushButton("🔄 Convert with Gemini")
-        self.save_button = QPushButton("Save Output")
-        self.load_sample_button = QPushButton("Load Sample")
+        icon_path = "icons/"
+        reload_icon = QIcon(icon_path + "reload.svg")
+        save_icon = QIcon(icon_path + "save.svg")
+        load_sample_icon = QIcon(icon_path + "load_document.svg")
+        java_icon = QIcon(icon_path + "java.svg")
+
+        self.load_button = QPushButton(java_icon, "Load From File")
+        self.convert_button = QPushButton(reload_icon, "Convert with Gemini")
+        self.save_button = QPushButton(save_icon, "Save Output")
+        self.load_sample_button = QPushButton(load_sample_icon, "Load Sample")
+
+        outlined_style = """
+            QPushButton {
+                background-color: transparent;
+                color: #CCCCCC;
+                border: 1px solid #666666;
+                padding: 8px 16px;
+                border-radius: 7px;
+                font-weight: bold;
+            }
+            
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                border: 1px solid #888888;
+            }
+            
+            QPushButton:pressed {
+                background-color: rgba(255, 255, 255, 0.2);
+                border: 1px solid #AAAAAA;
+            }
+        """
+        self.load_button.setStyleSheet(outlined_style)
+        self.convert_button.setStyleSheet(outlined_style)
+        self.save_button.setStyleSheet(outlined_style)
+        self.load_sample_button.setStyleSheet(outlined_style)
+        input_clear_button.setStyleSheet(outlined_style)
+        output_clear_button.setStyleSheet(outlined_style)
 
         self.convert_button.setMinimumWidth(200)
         font = self.convert_button.font()
@@ -106,6 +150,8 @@ class MainWindow(QMainWindow):
         self.convert_button.clicked.connect(self.convert_code)
         self.save_button.clicked.connect(self.save_file)
         self.load_sample_button.clicked.connect(self.load_sample)
+        input_clear_button.clicked.connect(self.clear_input)
+        output_clear_button.clicked.connect(self.clear_output)
 
         button_layout.addWidget(self.load_button)
         button_layout.addWidget(self.load_sample_button)
@@ -205,3 +251,9 @@ class MainWindow(QMainWindow):
     def load_sample(self):
         sample_code = sampleswing.sample_code
         self.swing_editor.setPlainText(sample_code)
+
+    def clear_input(self):
+        self.swing_editor.clear()
+
+    def clear_output(self):
+        self.compose_output.clear()
