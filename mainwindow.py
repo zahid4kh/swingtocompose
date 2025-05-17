@@ -202,6 +202,24 @@ class MainWindow(QMainWindow):
 
         return QIcon(white_pixmap)
 
+    def create_warning_icon(self):
+        pixmap = QPixmap("icons/warning.svg")
+        white_pixmap = QPixmap(pixmap.size())
+        white_pixmap.fill(QColor(0, 0, 0, 0))
+
+        painter = QPainter(white_pixmap)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_Source)
+        painter.drawPixmap(0, 0, pixmap)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.fillRect(white_pixmap.rect(), QColor(255, 255, 255))
+        painter.end()
+
+        return white_pixmap
+
     def convert_code(self):
         swing_code = self.swing_editor.toPlainText()
 
@@ -210,13 +228,9 @@ class MainWindow(QMainWindow):
             warning_dialog.setWindowTitle("Warning")
             warning_dialog.setText("Please enter some Java Swing code first.")
             warning_dialog.setIcon(QMessageBox.Icon.Warning)
-            warning_dialog.setStandardButtons(
-                QMessageBox.StandardButton.Ok)
+            warning_dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
 
-            custom_icon = QPixmap("icons/warning.svg")
-            if not custom_icon.isNull():
-                warning_dialog.setIconPixmap(custom_icon.scaled(
-                    32, 32, Qt.AspectRatioMode.KeepAspectRatio))
+            warning_dialog.setIconPixmap(self.create_warning_icon())
 
             warning_dialog.setStyleSheet("""
                 QMessageBox {
