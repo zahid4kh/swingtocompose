@@ -66,8 +66,7 @@ Version: $PACKAGE_VERSION
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments, python3-pip
-PreDepends: pip3
+Depends: python3 (>= 3.8), python3-venv
 Maintainer: Zahid Khalilov <halilzahid@gmail.com>
 Description: Swing to Compose Converter
  A robust tool for converting code written with Java Swing into Compose Desktop.
@@ -90,8 +89,15 @@ cat > "$PACKAGE_DIR/DEBIAN/postinst" << EOF
 #!/bin/sh
 set -e
 
-# Install required pip package
-pip3 install --quiet google-genai
+# Create virtual environment
+python3 -m venv /usr/share/swingtocompose/venv
+
+# Install all required packages in the venv
+/usr/share/swingtocompose/venv/bin/pip install --quiet \
+    PyQt6 \
+    python-dotenv \
+    pygments \
+    google-genai
 
 # Update desktop database
 if command -v update-desktop-database >/dev/null 2>&1; then
@@ -138,7 +144,7 @@ log "info" "Creating launcher script..."
 cat > "$PACKAGE_DIR/usr/bin/swingtocompose" << EOF
 #!/bin/bash
 cd /usr/share/swingtocompose
-python3 main.py "\$@"
+./venv/bin/python3 main.py "\$@"
 EOF
 chmod 755 "$PACKAGE_DIR/usr/bin/swingtocompose" # making the script executable
 
