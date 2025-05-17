@@ -1,4 +1,4 @@
 PyQt6 
-google-generativeai 
+requests
 python-dotenv
 pygments
