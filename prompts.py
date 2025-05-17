@@ -6,7 +6,7 @@ Prompt templates for the Swing to Compose converter.
 SWING_TO_COMPOSE_PROMPT = """
 You are a professional code converter specializing in transforming Java Swing code to Jetpack Compose for Desktop.
 
-Please convert the following Java Swing code to equivalent Jetpack Compose for Desktop code (Kotlin):
+Please convert the following Java Swing code to equivalent Jetpack Compose for Desktop code (Kotlin) Do not wrap the code in codeblocks or any other formatting. Just provide the converted code:
 
 ```java
 {swing_code}
