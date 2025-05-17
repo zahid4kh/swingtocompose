@@ -66,8 +66,7 @@ Version: $PACKAGE_VERSION
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments,
-python3-pip
+Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments, python3-google-generativeai
 Maintainer: Zahid Khalilov <halilzahid@gmail.com>
 Description: Swing to Compose Converter
  A robust tool for converting code written with Java Swing into Compose Desktop.
@@ -90,8 +89,7 @@ cat > "$PACKAGE_DIR/DEBIAN/postinst" << EOF
 #!/bin/sh
 set -e
 
-# Install required pip package
-/usr/bin/pip3 install --quiet google-generativeai
+pip install google-generativeai
 
 # Update desktop database
 if command -v update-desktop-database >/dev/null 2>&1; then
@@ -178,15 +176,9 @@ log "info" "Setting permissions..."
 find "$PACKAGE_DIR" -type d -exec chmod 755 {} \;
 find "$PACKAGE_DIR" -type f -exec chmod 644 {} \;
 chmod 755 "$PACKAGE_DIR/DEBIAN/postinst"
-chmod 755 "$PACKAGE_DIR/DEBIAN/prerm"     
-chmod 755 "$PACKAGE_DIR/DEBIAN/postrm"  
+chmod 755 "$PACKAGE_DIR/DEBIAN/prerm"
+chmod 755 "$PACKAGE_DIR/DEBIAN/postrm"
 chmod 755 "$PACKAGE_DIR/usr/bin/swingtocompose"
-
-log "info" "Setting file ownership..."
-if ! sudo chown -R root:root "$PACKAGE_DIR"; then
-    log "error" "Failed to set ownership. Try running the entire script with sudo."
-    exit 1
-fi
 
 log "info" "Building the package..."
 dpkg-deb --build "$PACKAGE_DIR"
