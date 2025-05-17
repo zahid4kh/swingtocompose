@@ -12,6 +12,7 @@ from pygmentshighlighter import PygmentsHighlighter, PygmentsFadingEdit
 from pygments.lexers import JavaLexer, KotlinLexer
 from apikeydialog import ApiKeyDialog
 import os
+import importlib
 
 
 class MainWindow(QMainWindow):
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(1200, 800)
 
         self.init_ui()
+        self.check_api_key()
 
     def init_ui(self):
         clear_button_width = 80
@@ -181,7 +183,8 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(button_layout)
 
         api_status_layout = QHBoxLayout()
-        self.api_status_label = QLabel("API status unknown")
+        self.api_status_label = QLabel("Checking API status...")
+        self.api_status_label.setStyleSheet("color: #AAAAAA;")
         api_status_layout.addWidget(self.api_status_label)
         api_status_layout.addStretch()
         main_layout.addLayout(api_status_layout)
@@ -189,10 +192,14 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def check_api_key(self):
-        global GEMINI_API_KEY
-        from key import GEMINI_API_KEY
+        try:
+            import key
+            importlib.reload(key)
+            api_key = key.GEMINI_API_KEY
+        except Exception:
+            api_key = None
 
-        if not GEMINI_API_KEY:
+        if not api_key:
             self.api_status_label.setText(
                 "⚠️ No Gemini API key found - running in demo mode")
             self.api_status_label.setStyleSheet("color: #FFA500;")
