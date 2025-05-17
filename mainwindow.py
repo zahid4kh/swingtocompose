@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QSplitter, QFileDialog, QMessageBox, QProgressBar,
                              QSizePolicy)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QColor, QPixmap, QPainter
 from streamworker import StreamWorker
 from key import GEMINI_API_KEY
 from coolstyle import CoolStyle
@@ -104,10 +104,11 @@ class MainWindow(QMainWindow):
         button_layout = QHBoxLayout()
 
         icon_path = "icons/"
-        reload_icon = QIcon(icon_path + "reload.svg")
-        save_icon = QIcon(icon_path + "save.svg")
-        load_sample_icon = QIcon(icon_path + "load_document.svg")
-        java_icon = QIcon(icon_path + "java.svg")
+        reload_icon = self.create_white_icon(icon_path + "reload.svg")
+        save_icon = self.create_white_icon(icon_path + "save.svg")
+        load_sample_icon = self.create_white_icon(
+            icon_path + "load_document.svg")
+        java_icon = self.create_white_icon(icon_path + "java.svg")
 
         self.load_button = QPushButton(java_icon, "Load From File")
         self.convert_button = QPushButton(reload_icon, "Convert with Gemini")
@@ -123,12 +124,12 @@ class MainWindow(QMainWindow):
                 border-radius: 7px;
                 font-weight: bold;
             }
-            
+
             QPushButton:hover {
                 background-color: rgba(255, 255, 255, 0.1);
                 border: 1px solid #888888;
             }
-            
+
             QPushButton:pressed {
                 background-color: rgba(255, 255, 255, 0.2);
                 border: 1px solid #AAAAAA;
@@ -175,6 +176,23 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(api_status_layout)
 
         self.setCentralWidget(central_widget)
+
+    def create_white_icon(self, icon_path):
+        pixmap = QPixmap(icon_path)
+
+        white_pixmap = QPixmap(pixmap.size())
+        white_pixmap.fill(QColor(0, 0, 0, 0))
+
+        painter = QPainter(white_pixmap)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_Source)
+        painter.drawPixmap(0, 0, pixmap)
+        painter.setCompositionMode(
+            QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.fillRect(white_pixmap.rect(), QColor(255, 255, 255))
+        painter.end()
+
+        return QIcon(white_pixmap)
 
     def convert_code(self):
         swing_code = self.swing_editor.toPlainText()
