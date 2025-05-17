@@ -99,6 +99,9 @@ python3 -m venv /usr/share/swingtocompose/venv
     pygments \
     google-genai
 
+# Make sure permissions are appropriate for the venv directory
+chmod -R 755 /usr/share/swingtocompose/venv
+
 # Update desktop database
 if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database -q
@@ -130,10 +133,22 @@ cat > "$PACKAGE_DIR/DEBIAN/postrm" << EOF
 #!/bin/sh
 set -e
 
-# Remove empty directory if it exists
+# First remove the virtual environment with force
+if [ -d /usr/share/swingtocompose/venv ]; then
+    chmod -R 755 /usr/share/swingtocompose/venv || true
+    rm -rf /usr/share/swingtocompose/venv || true
+fi
+
+# Remove the .env file if it exists
+if [ -f /usr/share/swingtocompose/.env ]; then
+    rm -f /usr/share/swingtocompose/.env || true
+fi
+
+# Now try to remove the main directory 
 if [ -d /usr/share/swingtocompose ]; then
-    rmdir --ignore-fail-on-non-empty /usr/share/swingtocompose
-    rm -rf /venv
+    find /usr/share/swingtocompose -type f -exec chmod 644 {} \; 2>/dev/null || true
+    find /usr/share/swingtocompose -type d -exec chmod 755 {} \; 2>/dev/null || true
+    rm -rf /usr/share/swingtocompose || true
 fi
 
 exit 0
