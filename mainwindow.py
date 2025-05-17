@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QLabel, QPushButton, QTextEdit,
                              QSplitter, QFileDialog, QMessageBox, QProgressBar,
-                             QSizePolicy)
+                             QSizePolicy, QDialog)
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QColor, QPixmap, QPainter
 from streamworker import StreamWorker
@@ -10,6 +10,8 @@ from coolstyle import CoolStyle
 import sampleswing
 from pygmentshighlighter import PygmentsHighlighter, PygmentsFadingEdit
 from pygments.lexers import JavaLexer, KotlinLexer
+from apikeydialog import ApiKeyDialog
+import os
 
 
 class MainWindow(QMainWindow):
@@ -111,9 +113,11 @@ class MainWindow(QMainWindow):
         load_sample_icon = self.create_white_icon(
             icon_path + "load_document.svg")
         java_icon = self.create_white_icon(icon_path + "java.svg")
+        key_icon = self.create_white_icon(icon_path + "key.svg")
 
         self.load_button = QPushButton(java_icon, " Load From File")
         self.convert_button = QPushButton(reload_icon, " Convert with Gemini")
+        self.api_key_button = QPushButton(key_icon, " Add API Key")
         self.save_button = QPushButton(save_icon, " Save Output")
         self.load_sample_button = QPushButton(load_sample_icon, " Load Sample")
 
@@ -140,23 +144,27 @@ class MainWindow(QMainWindow):
         icon_size = 18
         self.load_button.setIconSize(QSize(icon_size, icon_size))
         self.convert_button.setIconSize(QSize(icon_size, icon_size))
+        self.api_key_button.setIconSize(QSize(icon_size, icon_size))
         self.save_button.setIconSize(QSize(icon_size, icon_size))
         self.load_sample_button.setIconSize(QSize(icon_size, icon_size))
 
         self.load_button.setStyleSheet(outlined_style)
         self.convert_button.setStyleSheet(outlined_style)
+        self.api_key_button.setStyleSheet(outlined_style)
         self.save_button.setStyleSheet(outlined_style)
         self.load_sample_button.setStyleSheet(outlined_style)
         input_clear_button.setStyleSheet(outlined_style)
         output_clear_button.setStyleSheet(outlined_style)
 
         self.convert_button.setMinimumWidth(200)
+        self.api_key_button.setMinimumWidth(150)
         font = self.convert_button.font()
         font.setBold(True)
         self.convert_button.setFont(font)
 
         self.load_button.clicked.connect(self.load_file)
         self.convert_button.clicked.connect(self.convert_code)
+        self.api_key_button.clicked.connect(self.show_api_key_dialog)
         self.save_button.clicked.connect(self.save_file)
         self.load_sample_button.clicked.connect(self.load_sample)
         input_clear_button.clicked.connect(self.clear_input)
@@ -166,24 +174,121 @@ class MainWindow(QMainWindow):
         button_layout.addWidget(self.load_sample_button)
         button_layout.addStretch()
         button_layout.addWidget(self.convert_button)
+        button_layout.addWidget(self.api_key_button)
         button_layout.addStretch()
         button_layout.addWidget(self.save_button)
 
         main_layout.addLayout(button_layout)
 
         api_status_layout = QHBoxLayout()
-        if not GEMINI_API_KEY:
-            api_status = QLabel(
-                "⚠️ No Gemini API key found - running in demo mode")
-            api_status.setStyleSheet("color: #FFA500;")
-        else:
-            api_status = QLabel("✓ Gemini API connected")
-            api_status.setStyleSheet("color: #00FF00;")
-        api_status_layout.addWidget(api_status)
+        self.api_status_label = QLabel("API status unknown")
+        api_status_layout.addWidget(self.api_status_label)
         api_status_layout.addStretch()
         main_layout.addLayout(api_status_layout)
 
         self.setCentralWidget(central_widget)
+
+    def check_api_key(self):
+        global GEMINI_API_KEY
+        from key import GEMINI_API_KEY
+
+        if not GEMINI_API_KEY:
+            self.api_status_label.setText(
+                "⚠️ No Gemini API key found - running in demo mode")
+            self.api_status_label.setStyleSheet("color: #FFA500;")
+            self.show_api_key_warning()
+        else:
+            self.api_status_label.setText("✓ Gemini API connected")
+            self.api_status_label.setStyleSheet("color: #00FF00;")
+
+    def show_api_key_warning(self):
+        warning_dialog = QMessageBox(self)
+        warning_dialog.setWindowTitle("API Key Required")
+        warning_dialog.setText("No Gemini API key found. The application is running in demo mode.\n\n"
+                               "Click 'Add API Key' to enter your Gemini API key.")
+        warning_dialog.setIcon(QMessageBox.Icon.Warning)
+        warning_dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
+
+        warning_dialog.setIconPixmap(self.create_warning_icon())
+
+        warning_dialog.setStyleSheet("""
+            QMessageBox {
+                background-color: #2b2b2b;
+            }
+            QMessageBox QLabel {
+                color: #CCCCCC;
+                min-height: 40px;
+                padding-left: 10px;
+            }
+            QPushButton {
+                background-color: transparent;
+                color: #CCCCCC;
+                border: 1px solid #666666;
+                padding: 8px 16px;
+                border-radius: 7px;
+                font-weight: bold;
+                text-align: center;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                border: 1px solid #888888;
+            }
+            QPushButton:pressed {
+                background-color: rgba(255, 255, 255, 0.2);
+                border: 1px solid #AAAAAA;
+            }
+        """)
+
+        warning_dialog.exec()
+
+    def show_api_key_dialog(self):
+        dialog = ApiKeyDialog(self)
+        result = dialog.exec()
+
+        if result == QDialog.DialogCode.Accepted and dialog.api_key_field.text().strip():
+            api_key = dialog.api_key_field.text().strip()
+            self.save_api_key(api_key)
+
+    def save_api_key(self, api_key):
+        possible_paths = [
+            os.path.dirname(os.path.abspath(__file__)),
+            "/usr/share/swingtocompose/",
+            os.path.expanduser("~/.config/swingtocompose/")
+        ]
+
+        for path in possible_paths:
+            try:
+                if path == os.path.expanduser("~/.config/swingtocompose/") and not os.path.exists(path):
+                    os.makedirs(path)
+
+                env_file = os.path.join(path, ".env")
+                with open(env_file, "w") as f:
+                    f.write(f"GEMINI_API_KEY={api_key}")
+
+                QMessageBox.information(
+                    self,
+                    "Success",
+                    f"API key saved successfully to {env_file}.\n\nThe application will now use your Gemini API key for conversions."
+                )
+
+                import importlib
+                import key
+                importlib.reload(key)
+                global GEMINI_API_KEY
+                from key import GEMINI_API_KEY
+
+                self.check_api_key()
+                return True
+            except Exception as e:
+                continue
+
+        error_msg = "Could not save API key to any valid location.\n\n"
+        error_msg += "Please check permissions or manually create a .env file with your API key:\n"
+        error_msg += "GEMINI_API_KEY=your_api_key_here"
+
+        QMessageBox.critical(self, "Error", error_msg)
+        return False
 
     def create_white_icon(self, icon_path):
         pixmap = QPixmap(icon_path)
