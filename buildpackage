@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 PACKAGE_NAME="swingtocompose"
-PACKAGE_VERSION="1.0.0"  # Update for new versions
+PACKAGE_VERSION="1.0.1"  # Update for new versions
 PACKAGE_DIR="${PACKAGE_NAME}-${PACKAGE_VERSION}"
 REPO_DIR="repo"
 

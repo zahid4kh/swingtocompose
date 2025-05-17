@@ -20,6 +20,10 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setObjectName("SwingToCompose")
+        if hasattr(self, 'setWindowClass'):
+            self.setWindowClass("SwingToCompose")
+
         self.setWindowTitle("Swing to Compose Converter (Gemini 2.5)")
         self.setMinimumSize(1200, 800)
 

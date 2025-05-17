@@ -7,6 +7,13 @@ from PyQt6.QtWidgets import QApplication
 def main():
     app = QApplication(sys.argv)
 
+    app.setApplicationName("SwingToCompose")
+    app.setApplicationDisplayName("Swing to Compose")
+    app.setDesktopFileName("swingtocompose")
+
+    if hasattr(app, 'setWindowClass'):
+        app.setWindowClass("SwingToCompose")
+
     CoolStyle.apply_to_application(app)
 
     window = MainWindow()
