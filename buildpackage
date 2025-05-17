@@ -1,0 +1,191 @@
+#!/bin/bash
+
+# buildpackage - Automated Debian package building script
+# This script builds a Debian package for swingtocompose
+
+set -e 
+
+# Configuration
+PACKAGE_NAME="swingtocompose"
+PACKAGE_VERSION="1.0.0"  # Update for new versions
+PACKAGE_DIR="${PACKAGE_NAME}-${PACKAGE_VERSION}"
+REPO_DIR="repo"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'  
+
+log() {
+    local level=$1
+    local message=$2
+    
+    case $level in
+        "info")
+            echo -e "${BLUE}[INFO]${NC} $message"
+            ;;
+        "success")
+            echo -e "${GREEN}[SUCCESS]${NC} $message"
+            ;;
+        "warning")
+            echo -e "${YELLOW}[WARNING]${NC} $message"
+            ;;
+        "error")
+            echo -e "${RED}[ERROR]${NC} $message"
+            ;;
+    esac
+}
+
+for cmd in dpkg-deb find chmod; do
+    if ! command -v $cmd &> /dev/null; then
+        log "error" "$cmd command not found. Please install it."
+        exit 1
+    fi
+done
+
+if [ -d "$PACKAGE_DIR" ]; then
+    log "info" "Removing existing package directory..."
+    rm -rf "$PACKAGE_DIR"
+fi
+
+# Creating package directory structure
+log "info" "Creating package directory structure..."
+mkdir -p "$PACKAGE_DIR/DEBIAN"
+mkdir -p "$PACKAGE_DIR/usr/bin"
+mkdir -p "$PACKAGE_DIR/usr/share/applications"
+mkdir -p "$PACKAGE_DIR/usr/share/pixmaps"
+mkdir -p "$PACKAGE_DIR/usr/share/swingtocompose"
+mkdir -p "$PACKAGE_DIR/usr/share/swingtocompose/icons"
+
+# Creating control file
+log "info" "Creating control file..."
+cat > "$PACKAGE_DIR/DEBIAN/control" << EOF
+Package: $PACKAGE_NAME
+Version: $PACKAGE_VERSION
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments, python3-google-generativeai
+Maintainer: Zahid Khalilov <halilzahid@gmail.com>
+Description: Swing to Compose Converter
+ A robust tool for converting code written with Java Swing into Compose Desktop.
+ Features:
+  * Intelligent code conversion from Java Swing to Jetpack Compose
+  * Real-time streaming conversion with live preview
+  * Support for Material 3 components and themes
+  * Automatic layout conversion from Swing managers to Compose
+  * Smart handling of event listeners and state management
+  * Proper import management for Compose dependencies
+  * Syntax highlighting for both input and output code
+  * Clean and modern desktop UI built with Qt6
+  * Support for error handling and validation
+  * Cross-platform compatibility (Linux, Windows, macOS)
+EOF
+
+# Creating post-installation script
+log "info" "Creating post-installation script..."
+cat > "$PACKAGE_DIR/DEBIAN/postinst" << EOF
+#!/bin/sh
+set -e
+
+# Update desktop database
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database -q
+fi
+
+exit 0
+EOF
+chmod 755 "$PACKAGE_DIR/DEBIAN/postinst"
+
+# Creating pre-removal script
+log "info" "Creating pre-removal script..."
+cat > "$PACKAGE_DIR/DEBIAN/prerm" << EOF
+#!/bin/sh
+set -e
+
+# Clean up Python cache files
+if [ -d /usr/share/swingtocompose ]; then
+    find /usr/share/swingtocompose -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    find /usr/share/swingtocompose -type f -name "*.pyc" -delete 2>/dev/null || true
+fi
+
+exit 0
+EOF
+chmod 755 "$PACKAGE_DIR/DEBIAN/prerm"
+
+# Creating post-removal script
+log "info" "Creating post-removal script..."
+cat > "$PACKAGE_DIR/DEBIAN/postrm" << EOF
+#!/bin/sh
+set -e
+
+# Remove empty directory if it exists
+if [ -d /usr/share/swingtocompose ]; then
+    rmdir --ignore-fail-on-non-empty /usr/share/swingtocompose
+fi
+
+exit 0
+EOF
+chmod 755 "$PACKAGE_DIR/DEBIAN/postrm"
+
+# Creating launcher script
+log "info" "Creating launcher script..."
+cat > "$PACKAGE_DIR/usr/bin/swingtocompose" << EOF
+#!/bin/bash
+cd /usr/share/swingtocompose
+python3 main.py "\$@"
+EOF
+chmod 755 "$PACKAGE_DIR/usr/bin/swingtocompose" # making the script executable
+
+# Creating desktop file
+log "info" "Creating desktop file..."
+cat > "$PACKAGE_DIR/usr/share/applications/swingtocompose.desktop" << EOF
+[Desktop Entry]
+Name=Swing to Compose
+Comment=Swing to Compose Converter
+Exec=/usr/bin/swingtocompose
+Icon=swingtocompose
+Terminal=false
+Type=Application
+Categories=Utility;Security;
+StartupWMClass=swingtocompose
+EOF
+
+# Copying Python files
+log "info" "Copying Python files..."
+cp main.py mainwindow.py coolstyle.py fadingtext.py key.py prompts.py pygmentshighlighter.py samplecompose.py sampleswing.py streamworker.py "$PACKAGE_DIR/usr/share/swingtocompose/"
+
+# Creating icons directory and copy icons
+log "info" "Copying icons..."
+mkdir -p "$PACKAGE_DIR/usr/share/swingtocompose/icons"
+cp -r icons/* "$PACKAGE_DIR/usr/share/swingtocompose/icons/"
+
+
+if [ -f "icon.png" ]; then
+    log "info" "Copying icon..."
+    cp icon.png "$PACKAGE_DIR/usr/share/pixmaps/swingtocompose.png"
+else
+    log "warning" "icon.png not found. Please make sure to add an icon to /usr/share/pixmaps/swingtocompose.png manually."
+fi
+
+
+log "info" "Setting permissions..."
+find "$PACKAGE_DIR" -type d -exec chmod 755 {} \;
+find "$PACKAGE_DIR" -type f -exec chmod 644 {} \;
+chmod 755 "$PACKAGE_DIR/DEBIAN/postinst"
+chmod 755 "$PACKAGE_DIR/usr/bin/swingtocompose"
+
+log "info" "Setting file ownership..."
+chown -R root:root "$PACKAGE_DIR"
+
+log "info" "Building the package..."
+dpkg-deb --build "$PACKAGE_DIR"
+
+# Move the package to the repository pool
+#log "info" "Moving package to repository..."
+#mkdir -p "$REPO_DIR/pool/main/p/swingtocompose"
+#cp "${PACKAGE_DIR}.deb" "$REPO_DIR/pool/main/p/swingtocompose/"
+
+#log "success" "Package ${PACKAGE_DIR}.deb built successfully and moved to the #repository!"
+#log "info" "Now run ./repo-update.sh to update the repository metadata."
