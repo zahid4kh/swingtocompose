@@ -112,10 +112,10 @@ class MainWindow(QMainWindow):
             icon_path + "load_document.svg")
         java_icon = self.create_white_icon(icon_path + "java.svg")
 
-        self.load_button = QPushButton(java_icon, "Load From File")
-        self.convert_button = QPushButton(reload_icon, "Convert with Gemini")
-        self.save_button = QPushButton(save_icon, "Save Output")
-        self.load_sample_button = QPushButton(load_sample_icon, "Load Sample")
+        self.load_button = QPushButton(java_icon, " Load From File")
+        self.convert_button = QPushButton(reload_icon, " Convert with Gemini")
+        self.save_button = QPushButton(save_icon, " Save Output")
+        self.load_sample_button = QPushButton(load_sample_icon, " Load Sample")
 
         outlined_style = """
             QPushButton {
@@ -125,17 +125,12 @@ class MainWindow(QMainWindow):
                 padding: 8px 16px;
                 border-radius: 7px;
                 font-weight: bold;
+                text-align: center;
             }
-
-            QPushButton QIcon {
-                padding: 8px 8px 8px 8px;
-            }
-
             QPushButton:hover {
                 background-color: rgba(255, 255, 255, 0.1);
                 border: 1px solid #888888;
             }
-
             QPushButton:pressed {
                 background-color: rgba(255, 255, 255, 0.2);
                 border: 1px solid #AAAAAA;
