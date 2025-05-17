@@ -1,6 +1,6 @@
 import time
 from PyQt6.QtCore import pyqtSignal, QThread
-import google.generativeai as genai
+from google import genai
 from key import GEMINI_API_KEY
 from prompts import SWING_TO_COMPOSE_PROMPT
 import samplecompose
@@ -21,18 +21,14 @@ class StreamWorker(QThread):
                 self._simulate_response()
                 return
 
-            model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash-preview-04-17",
-                generation_config={
-                    "temperature": 0.2,
-                    "top_p": 0.8,
-                    "top_k": 40
-                }
-            )
+            client = genai.Client(api_key=GEMINI_API_KEY)
 
             prompt = SWING_TO_COMPOSE_PROMPT.format(swing_code=self.swing_code)
 
-            response = model.generate_content(prompt, stream=True)
+            response = client.models.generate_content_stream(
+                model="gemini-2.5-flash-preview-04-17",
+                contents=prompt,
+            )
 
             for chunk in response:
                 if chunk.text is not None:
