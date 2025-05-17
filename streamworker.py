@@ -22,11 +22,11 @@ class StreamWorker(QThread):
                 return
 
             model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash",
+                model_name="gemini-2.5-flash-preview-04-17",
                 generation_config={
                     "temperature": 0.2,
-                    "top_p": 0.95,
-                    "top_k": 32,
+                    "top_p": 0.8,
+                    "top_k": 40
                 }
             )
 
@@ -35,9 +35,14 @@ class StreamWorker(QThread):
             response = model.generate_content(prompt, stream=True)
 
             for chunk in response:
-                if hasattr(chunk, 'text') and chunk.text:
+                if chunk.text is not None:
                     self.chunk_received.emit(chunk.text)
                     time.sleep(0.05)
+                elif hasattr(chunk, 'parts') and chunk.parts:
+                    for part in chunk.parts:
+                        if part.text:
+                            self.chunk_received.emit(part.text)
+                            time.sleep(0.05)
 
             self.finished.emit()
 
