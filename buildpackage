@@ -174,10 +174,15 @@ log "info" "Setting permissions..."
 find "$PACKAGE_DIR" -type d -exec chmod 755 {} \;
 find "$PACKAGE_DIR" -type f -exec chmod 644 {} \;
 chmod 755 "$PACKAGE_DIR/DEBIAN/postinst"
+chmod 755 "$PACKAGE_DIR/DEBIAN/prerm"     
+chmod 755 "$PACKAGE_DIR/DEBIAN/postrm"  
 chmod 755 "$PACKAGE_DIR/usr/bin/swingtocompose"
 
 log "info" "Setting file ownership..."
-chown -R root:root "$PACKAGE_DIR"
+if ! sudo chown -R root:root "$PACKAGE_DIR"; then
+    log "error" "Failed to set ownership. Try running the entire script with sudo."
+    exit 1
+fi
 
 log "info" "Building the package..."
 dpkg-deb --build "$PACKAGE_DIR"
