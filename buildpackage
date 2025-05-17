@@ -66,7 +66,8 @@ Version: $PACKAGE_VERSION
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments, python3-google-generativeai
+Depends: python3 (>= 3.8), python3-pyqt6 (>= 6.0), python3-dotenv, python3-pygments,
+python3-pip
 Maintainer: Zahid Khalilov <halilzahid@gmail.com>
 Description: Swing to Compose Converter
  A robust tool for converting code written with Java Swing into Compose Desktop.
@@ -88,6 +89,9 @@ log "info" "Creating post-installation script..."
 cat > "$PACKAGE_DIR/DEBIAN/postinst" << EOF
 #!/bin/sh
 set -e
+
+# Install required pip package
+/usr/bin/pip3 install --quiet google-generativeai
 
 # Update desktop database
 if command -v update-desktop-database >/dev/null 2>&1; then
