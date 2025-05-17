@@ -23,10 +23,10 @@ The easiest way to install on Debian/Ubuntu-based systems:
 
 ```bash
 # Download the latest package
-wget https://github.com/zahid4kh/swingtocompose/releases/download/v1.0.0/swingtocompose-1.0.0.deb
+wget https://github.com/zahid4kh/swingtocompose/releases/download/v1.0.1/swingtocompose-1.0.1.deb
 
 # Install the package
-sudo apt install ./swingtocompose-1.0.0.deb
+sudo apt install ./swingtocompose-1.0.1.deb
 ```
 
 The application will be installed to `/usr/share/swingtocompose/` and will be available in your applications menu or by running `swingtocompose` in a terminal.
