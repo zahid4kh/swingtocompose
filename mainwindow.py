@@ -206,8 +206,48 @@ class MainWindow(QMainWindow):
         swing_code = self.swing_editor.toPlainText()
 
         if not swing_code.strip():
-            QMessageBox.warning(
-                self, "Warning", "Please enter some Java Swing code first.")
+            warning_dialog = QMessageBox(self)
+            warning_dialog.setWindowTitle("Warning")
+            warning_dialog.setText("Please enter some Java Swing code first.")
+            warning_dialog.setIcon(QMessageBox.Icon.Warning)
+            warning_dialog.setStandardButtons(
+                QMessageBox.StandardButton.Ok)
+
+            custom_icon = QPixmap("icons/warning.svg")
+            if not custom_icon.isNull():
+                warning_dialog.setIconPixmap(custom_icon.scaled(
+                    32, 32, Qt.AspectRatioMode.KeepAspectRatio))
+
+            warning_dialog.setStyleSheet("""
+                QMessageBox {
+                    background-color: #2b2b2b;
+                }
+                QMessageBox QLabel {
+                    color: #CCCCCC;
+                    min-height: 40px;
+                    padding-left: 10px;
+                }
+                QPushButton {
+                    background-color: transparent;
+                    color: #CCCCCC;
+                    border: 1px solid #666666;
+                    padding: 8px 16px;
+                    border-radius: 7px;
+                    font-weight: bold;
+                    text-align: center;
+                    min-width: 80px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                    border: 1px solid #888888;
+                }
+                QPushButton:pressed {
+                    background-color: rgba(255, 255, 255, 0.2);
+                    border: 1px solid #AAAAAA;
+                }
+            """)
+
+            warning_dialog.exec()
             return
 
         self.compose_output.clear()
