@@ -45,6 +45,7 @@ class MainWindow(QMainWindow):
 
         self.swing_editor = QTextEdit()
         self.swing_editor.setFont(CoolStyle.get_code_font())
+        # self.swing_editor.setFixedSize(600, 1000)
         self.swing_editor.setPlaceholderText(
             "Paste your Java Swing code here...")
         input_layout.addWidget(self.swing_editor)
