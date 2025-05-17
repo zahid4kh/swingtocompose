@@ -9,6 +9,8 @@ from streamworker import StreamWorker
 from key import GEMINI_API_KEY
 from coolstyle import CoolStyle
 import sampleswing
+from pygmentshighlighter import PygmentsHighlighter, PygmentsFadingEdit
+from pygments.lexers import JavaLexer, KotlinLexer
 
 
 class MainWindow(QMainWindow):
@@ -51,6 +53,9 @@ class MainWindow(QMainWindow):
             "Paste your Java Swing code here...")
         self.swing_editor.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        self.java_highlighter = PygmentsHighlighter(
+            self.swing_editor.document(), JavaLexer())
         input_layout.addWidget(self.swing_editor)
 
         output_widget = QWidget()
@@ -60,7 +65,7 @@ class MainWindow(QMainWindow):
         output_label = QLabel("Jetpack Compose Code")
         output_layout.addWidget(output_label)
 
-        self.compose_output = FadingTextEdit()
+        self.compose_output = PygmentsFadingEdit(lexer=KotlinLexer())
         self.compose_output.setFont(CoolStyle.get_code_font())
         self.compose_output.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
