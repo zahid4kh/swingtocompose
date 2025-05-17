@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QLabel, QPushButton, QTextEdit,
-                             QSplitter, QFileDialog, QMessageBox, QProgressBar)
+                             QSplitter, QFileDialog, QMessageBox, QProgressBar,
+                             QSizePolicy)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QColor, QPalette
 from fadingtext import FadingTextEdit
@@ -48,6 +49,8 @@ class MainWindow(QMainWindow):
         # self.swing_editor.setFixedSize(600, 1000)
         self.swing_editor.setPlaceholderText(
             "Paste your Java Swing code here...")
+        self.swing_editor.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         input_layout.addWidget(self.swing_editor)
 
         output_widget = QWidget()
@@ -59,12 +62,21 @@ class MainWindow(QMainWindow):
 
         self.compose_output = FadingTextEdit()
         self.compose_output.setFont(CoolStyle.get_code_font())
+        self.compose_output.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         output_layout.addWidget(self.compose_output)
+
+        input_widget.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        output_widget.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         splitter.addWidget(input_widget)
         splitter.addWidget(output_widget)
         splitter.setSizes([600, 600])
 
+        splitter.setSizePolicy(QSizePolicy.Policy.Expanding,
+                               QSizePolicy.Policy.Expanding)
         main_layout.addWidget(splitter)
 
         self.progress_bar = QProgressBar()
