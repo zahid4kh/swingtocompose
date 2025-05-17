@@ -133,6 +133,7 @@ set -e
 # Remove empty directory if it exists
 if [ -d /usr/share/swingtocompose ]; then
     rmdir --ignore-fail-on-non-empty /usr/share/swingtocompose
+    rm -rf /venv
 fi
 
 exit 0
@@ -164,7 +165,7 @@ EOF
 
 # Copying Python files
 log "info" "Copying Python files..."
-cp main.py mainwindow.py coolstyle.py fadingtext.py key.py prompts.py pygmentshighlighter.py samplecompose.py sampleswing.py streamworker.py "$PACKAGE_DIR/usr/share/swingtocompose/"
+cp main.py mainwindow.py coolstyle.py fadingtext.py key.py prompts.py pygmentshighlighter.py samplecompose.py sampleswing.py streamworker.py apikeydialog.py "$PACKAGE_DIR/usr/share/swingtocompose/"
 
 # Creating icons directory and copy icons
 log "info" "Copying icons..."
