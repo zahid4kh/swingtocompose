@@ -2,7 +2,7 @@ import time
 from PyQt6.QtCore import pyqtSignal, QThread
 import google.generativeai as genai
 from key import GEMINI_API_KEY
-from samplecompose import sample_code
+import samplecompose
 
 
 class StreamWorker(QThread):
@@ -63,7 +63,7 @@ class StreamWorker(QThread):
 
     def _simulate_response(self):
 
-        sample_code = sample_code
+        sample_code = samplecompose.sample_code
         # only simulating streaming here
         chunks = [sample_code[i:i+20] for i in range(0, len(sample_code), 20)]
 
